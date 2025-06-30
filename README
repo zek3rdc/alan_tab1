@@ -1,231 +1,114 @@
-# SIGME2 - Sistema de Gestión de Secciones y Aulas
 
-## 📋 Descripción
+<div align="center">
 
-SIGME2 es una aplicación de escritorio desarrollada en Python con PyQt6 para la gestión integral de secciones escolares y asignación de aulas. El sistema permite administrar de manera eficiente la creación, edición y eliminación de secciones, así como la asignación automática o manual de aulas y docentes guía.
+# 🏫 SIGME2
+### Sistema de Gestión de Secciones y Aulas
 
-## ✨ Características Principales
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![PyQt6](https://img.shields.io/badge/PyQt6-6.0+-green.svg)](https://www.riverbankcomputing.com/software/pyqt/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12+-blue.svg)](https://postgresql.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### 🏫 Gestión de Secciones
-- **Creación de Secciones**: Asignación automática de códigos de sección basados en grado, letra y turno
-- **Asignación de Docentes**: Selección de docentes guía desde una lista actualizada del personal
-- **Gestión de Aulas**: Asignación automática o manual de aulas por grado
-- **Capacidad Máxima**: Configuración de límites de estudiantes por sección
+*Una aplicación de escritorio moderna para la gestión integral de secciones escolares y asignación de aulas*
 
-### 🔍 Funcionalidades Avanzadas
-- **Búsqueda en Tiempo Real**: Filtrado instantáneo por código, grado, letra, docente o aula
-- **Paginación**: Visualización organizada de 10 registros por página
-- **Edición en Línea**: Modificación de secciones existentes con validaciones
-- **Eliminación Múltiple**: Selección y eliminación de múltiples secciones simultáneamente
+[Características](#-características-principales) •
+[Instalación](#-instalación) •
+[Uso](#-uso) •
+[Documentación](#-documentación) •
+[Contribuir](#-contribución)
 
-### 🛡️ Seguridad y Robustez
-- **Validaciones Integrales**: Verificación de datos antes de operaciones de base de datos
-- **Manejo de Errores**: Sistema de logging automático para errores técnicos
-- **Transacciones Seguras**: Rollback automático en caso de errores
-- **Interfaz Responsiva**: Feedback visual durante operaciones de base de datos
-
-## 🚀 Instalación
-
-### Prerrequisitos
-- Python 3.8 o superior
-- PostgreSQL 12 o superior
-- pip (gestor de paquetes de Python)
-
-### Dependencias
-```bash
-pip install PyQt6 psycopg2-binary
-```
-
-### Configuración de Base de Datos
-1. Crear una base de datos PostgreSQL llamada `Sigme2`
-2. Configurar las credenciales en el archivo principal:
-```python
-DB_PARAMS = {
-    'dbname': 'Sigme2',
-    'user': 'tu_usuario',
-    'password': 'tu_contraseña',
-    'host': 'localhost',
-    'port': '5432'
-}
-```
-
-### Estructura de Tablas Requeridas
-```sql
--- Tabla de años escolares
-CREATE TABLE ANO_ESCOLAR (
-    codigo VARCHAR(10) PRIMARY KEY,
-    activo BOOLEAN DEFAULT FALSE
-);
-
--- Tabla de personal
-CREATE TABLE PERSONAL (
-    cedula VARCHAR(20) PRIMARY KEY,
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL
-);
-
--- Tabla de secciones
-CREATE TABLE SECCION (
-    codigo VARCHAR(10) PRIMARY KEY,
-    letra CHAR(1) NOT NULL,
-    codigo_grado INTEGER NOT NULL,
-    turno CHAR(1) NOT NULL,
-    cedula_docente_guia VARCHAR(20) REFERENCES PERSONAL(cedula),
-    aula_asignada VARCHAR(10),
-    capacidad_maxima INTEGER NOT NULL,
-    total_estudiantes INTEGER DEFAULT 0,
-    estudiantes_varones INTEGER DEFAULT 0,
-    estudiantes_hembras INTEGER DEFAULT 0,
-    codigo_ano_escolar VARCHAR(10) REFERENCES ANO_ESCOLAR(codigo)
-);
-```
-
-## 🎯 Uso de la Aplicación
-
-### Inicio Rápido
-1. Ejecutar la aplicación:
-```bash
-python Secciones_Alan.py
-```
-
-2. La interfaz se cargará automáticamente con:
-   - Lista de secciones existentes
-   - Formulario para nueva sección
-   - Controles de búsqueda y paginación
-
-### Crear una Nueva Sección
-1. **Completar el formulario**:
-   - Grado (1-6)
-   - Letra (A-E)
-   - Turno (Mañana/Tarde)
-   - Docente Guía (seleccionar de la lista)
-   - Capacidad Máxima (número entero positivo)
-   - Aula (opcional - se asigna automáticamente si se deja vacío)
-
-2. **Hacer clic en "Asignar Sección"**
-
-3. **Verificar la confirmación** y la nueva sección aparecerá en la tabla
-
-### Editar una Sección Existente
-1. **Seleccionar una fila** en la tabla de secciones
-2. **Hacer clic en "Editar Sección"**
-3. **Modificar los campos** necesarios (grado, letra y turno no son editables)
-4. **Hacer clic en "Actualizar Sección"**
-
-### Eliminar Secciones
-1. **Seleccionar una o más filas** en la tabla
-2. **Hacer clic en "Eliminar Sección"**
-3. **Confirmar la eliminación** en el diálogo
-
-### Búsqueda y Navegación
-- **Búsqueda**: Escribir en el campo de búsqueda para filtrar resultados
-- **Paginación**: Usar los botones `<<`, `<`, `>`, `>>` para navegar entre páginas
-- **Información de página**: Se muestra "Página X de Y" en la parte inferior
-
-## 🏗️ Arquitectura del Sistema
-
-### Componentes Principales
-- **ModuloInstitucion**: Clase principal de la interfaz de usuario
-- **DBWorker**: Manejo de operaciones de base de datos en hilos separados
-- **WorkerSignals**: Sistema de señales para comunicación entre hilos
-
-### Patrones de Diseño
-- **MVC (Modelo-Vista-Controlador)**: Separación clara entre lógica de negocio y presentación
-- **Observer**: Sistema de señales para actualizaciones de UI
-- **Worker Thread**: Operaciones de base de datos no bloqueantes
-
-### Manejo de Estados
-- **Modo Asignación**: Estado por defecto para crear nuevas secciones
-- **Modo Edición**: Estado especial para modificar secciones existentes
-- **Validación Visual**: Retroalimentación inmediata con bordes rojos para errores
-
-## 📁 Estructura del Proyecto
-
-```
-SIGME2/
-├── main.py                 # Archivo principal de la aplicación
-├── logs/                   # Directorio de archivos de log (se crea automáticamente)
-│   └── app_YYYYMMDD_HHMMSS.log
-├── README.md              # Este archivo
-└── requirements.txt       # Dependencias del proyecto
-```
-
-## 🔧 Configuración Avanzada
-
-### Personalización de Parámetros
-```python
-# Cambiar el tamaño de página para paginación
-self.page_size = 20  # Por defecto: 10
-
-# Modificar el retraso de búsqueda
-self.search_timer.start(300)  # Por defecto: 500ms
-
-# Ajustar rango de grados
-if grado_int < 1 or grado_int > 12:  # Por defecto: 1-6
-```
-
-### Estilos CSS Personalizables
-La aplicación utiliza estilos CSS embebidos que pueden modificarse en el método `__init__` de la clase `ModuloInstitucion`.
-
-## 📊 Logging y Monitoreo
-
-### Sistema de Logs
-- **Ubicación**: Carpeta `logs/` en el directorio de la aplicación
-- **Formato**: `app_YYYYMMDD_HHMMSS.log`
-- **Contenido**: Errores de base de datos, excepciones y operaciones críticas
-
-### Niveles de Log
-- **ERROR**: Errores de base de datos y excepciones
-- **CRITICAL**: Errores de conexión a la base de datos
-
-## 🚨 Solución de Problemas
-
-### Problemas Comunes
-
-#### Error de Conexión a Base de Datos
-```
-Error: No se pudo conectar a la base de datos
-```
-**Solución**: Verificar que PostgreSQL esté ejecutándose y las credenciales sean correctas.
-
-#### Tabla No Seleccionable
-```
-Los botones de editar/eliminar no se habilitan
-```
-**Solución**: Hacer clic directamente en las filas de la tabla, no en el espacio vacío.
-
-#### Error de Año Escolar
-```
-Error: No hay un año escolar activo registrado
-```
-**Solución**: Insertar un registro en la tabla `ANO_ESCOLAR` con `activo = TRUE`.
-
-### Logs de Depuración
-Revisar los archivos de log en la carpeta `logs/` para obtener información detallada sobre errores.
-
-## 🤝 Contribución
-
-### Reportar Problemas
-1. Revisar los logs de error
-2. Incluir pasos para reproducir el problema
-3. Especificar versión de Python y PostgreSQL
-
-### Desarrollo
-1. Fork del repositorio
-2. Crear rama para nueva funcionalidad
-3. Implementar cambios con pruebas
-4. Enviar pull request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 👥 Créditos
-
-Desarrollado para el sistema educativo con enfoque en la gestión eficiente de recursos académicos.
+</div>
 
 ---
 
-**Versión**: 1.0.0  
-**Última Actualización**: Diciembre 2024  
-**Compatibilidad**: Python 3.8+, PostgreSQL 12+, PyQt6
+## 🌟 Características Principales
+
+<table>
+<tr>
+<td width="50%">
+
+### 🏫 **Gestión de Secciones**
+- ✅ Creación automática de códigos de sección
+- 👨‍🏫 Asignación de docentes guía
+- 🏢 Gestión inteligente de aulas
+- 📊 Control de capacidad máxima
+
+</td>
+<td width="50%">
+
+### 🔍 **Funcionalidades Avanzadas**
+- 🔎 Búsqueda en tiempo real
+- 📄 Paginación (10 registros/página)
+- ✏️ Edición en línea
+- 🗑️ Eliminación múltiple
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🛡️ **Seguridad y Robustez**
+- ✅ Validaciones integrales
+- 📝 Sistema de logging automático
+- 🔄 Transacciones seguras con rollback
+- 💻 Interfaz responsiva
+
+</td>
+<td width="50%">
+
+### 🎨 **Experiencia de Usuario**
+- 🖱️ Interfaz intuitiva y moderna
+- ⚡ Operaciones no bloqueantes
+- 📱 Feedback visual inmediato
+- 🎯 Modo edición especializado
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🖼️ Capturas de Pantalla
+
+<div align="center">
+<img src="https://placehold.co/800x500/1c355b/ffffff?text=Interfaz+Principal+SIGME2" alt="Interfaz principal de SIGME2 mostrando la tabla de secciones con formulario de creación, barra de búsqueda y controles de paginación" />
+
+*Vista principal de la aplicación con gestión completa de secciones*
+</div>
+
+---
+
+## 🚀 Instalación
+
+### 📋 Prerrequisitos
+
+<table>
+<tr>
+<td><img src="https://placehold.co/40x40/3776ab/ffffff?text=🐍" alt="Python logo"/></td>
+<td><strong>Python 3.8+</strong></td>
+</tr>
+<tr>
+<td><img src="https://placehold.co/40x40/336791/ffffff?text=🐘" alt="PostgreSQL logo"/></td>
+<td><strong>PostgreSQL 12+</strong></td>
+</tr>
+<tr>
+<td><img src="https://placehold.co/40x40/000000/ffffff?text=📦" alt="pip logo"/></td>
+<td><strong>pip (Package Manager)</strong></td>
+</tr>
+</table>
+
+### 💾 Instalación Rápida
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/tu-usuario/sigme2.git
+cd sigme2
+
+# 2. Instalar dependencias
+pip install -r requirements.txt
+
+# 3. Configurar base de datos
+createdb Sigme2
+
+# 4. Ejecutar la aplicación
+python main.py
